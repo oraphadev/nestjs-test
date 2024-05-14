@@ -10,7 +10,11 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(): Promise<User[]> {
-    const users = await this.prisma.user.findMany();
+    const users = await this.prisma.user.findMany({
+      include: {
+        posts: true,
+      },
+    });
     return users;
   }
 

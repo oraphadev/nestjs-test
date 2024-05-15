@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UserAlreadyExistsException } from './exceptions/user-already-exists.exception';
 
 @Injectable()
 export class UsersService {
@@ -18,18 +15,8 @@ export class UsersService {
     return users;
   }
 
-  async create({ password, ...payload }: CreateUserDto): Promise<User> {
-    const alreadyExists = await this.findOne({ email: payload.email });
-    if (alreadyExists) {
-      throw new UserAlreadyExistsException();
-    }
-    const user = await this.prisma.user.create({
-      data: {
-        ...payload,
-        password: bcrypt.hashSync(password, 10),
-      },
-    });
-    return user;
+  async create(data: Prisma.UserCreateInput): Promise<User> {
+    return this.prisma.user.create({ data });
   }
 
   async findOne(where: Prisma.UserWhereUniqueInput): Promise<User | null> {

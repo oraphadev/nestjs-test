@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { Post as PostEntity } from '@prisma/client';
-import { CreatePostDto } from './dtos/create-post.dto';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Post as PostEntity, Prisma } from '@prisma/client';
 import { PostsService } from './posts.service';
 
+@ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
@@ -13,7 +14,12 @@ export class PostsController {
   }
 
   @Post()
-  async create(@Body() payload: CreatePostDto): Promise<PostEntity> {
+  async create(@Body() payload: Prisma.PostCreateInput): Promise<PostEntity> {
     return this.postsService.create(payload);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string): Promise<PostEntity> {
+    return this.postsService.remove({ id });
   }
 }

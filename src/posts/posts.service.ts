@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { UsersService } from '../users/users.service';
-import { CreatePostDto } from './dtos/create-post.dto';
 import { AuthorNotFoundException } from './exceptions/author-not-found.exception';
 
 @Injectable()
@@ -20,9 +20,9 @@ export class PostsService {
     return posts;
   }
 
-  async create(payload: CreatePostDto) {
+  async create(payload: Prisma.PostCreateInput) {
     const authorExists = await this.usersService.findOne({
-      id: payload.authorId,
+      id: payload.author?.connect?.id,
     });
     if (!authorExists) {
       throw new AuthorNotFoundException();
@@ -31,5 +31,11 @@ export class PostsService {
       data: payload,
     });
     return post;
+  }
+
+  async remove(where: Prisma.PostWhereUniqueInput) {
+    return this.prisma.post.delete({
+      where,
+    });
   }
 }
